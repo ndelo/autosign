@@ -1,0 +1,9 @@
+---
+vsphere:
+    user:
+    password:
+    api:
+aws:
+    user:
+    password:
+    api:
