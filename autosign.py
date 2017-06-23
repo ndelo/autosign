@@ -10,7 +10,6 @@ import atexit
 
 def main():
 	# disable SSL certificate verification for self-signed certificates on VSphere server
-	# otherwise comment out the below
 	context = ssl.SSLContext(ssl.PROTOCOL_TLSv1) 
 	context.verify_mode = ssl.CERT_NONE 
 
@@ -42,7 +41,6 @@ def main():
 		if vm == None:	
 			exit(1)
 		else:
-			print "Successfully autosigned certificate for " + sys.argv[1]
 			exit(0)
 
 	elif cloud_platform == "aws":
