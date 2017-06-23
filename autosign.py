@@ -8,39 +8,48 @@ import yaml
 import ssl 
 import atexit
 
-# disable SSL certificate verification for our self-signed cert
-context = ssl.SSLContext(ssl.PROTOCOL_TLSv1) 
-context.verify_mode = ssl.CERT_NONE 
+def main():
+	# disable SSL certificate verification for self-signed certificates on VSphere server
+	# otherwise comment out the below
+	context = ssl.SSLContext(ssl.PROTOCOL_TLSv1) 
+	context.verify_mode = ssl.CERT_NONE 
 
-# load csr from stdin
-csr_from_stdin = sys.stdin.read()
-csr = load_certificate_request(FILETYPE_PEM, csr_from_stdin)
+	# load csr from stdin
+	csr_from_stdin = sys.stdin.read()
+	csr = load_certificate_request(FILETYPE_PEM, csr_from_stdin)
 
-extentions = csr.get_extensions()
-uuid = extentions[0].get_data()[2:].lower().strip()
-cloud_platform = extentions[1].get_data()[2:].lower().strip()
+	# get extension requests
+	# NOTE: Ideally we could filter by OID number, but OpenSSL.crypto.X509Extension 
+	# doesn't give us the extension's raw OID and the shortname field returns 
+	# "UNDEF",  so we access the extensions by their index number
+	extensions = csr.get_extensions()
+	uuid = extensions[0].get_data()[2:].lower().strip()
+	cloud_platform = extensions[1].get_data()[2:].lower().strip()
 
-f = open('config.yml')
-secrets = yaml.safe_load(f)
-f.close()
+	f = open('config.yml')
+	secrets = yaml.safe_load(f)
+	f.close()
 
-if cloud_platform == "vmware":
+	if cloud_platform == "vmware":
 
-	service_instance = SmartConnect(host=secrets['vsphere']['api'], user=secrets['vsphere']['user'], pwd=secrets['vsphere']['password'], sslContext=context)
-	atexit.register(Disconnect, service_instance)
+		service_instance = SmartConnect(host=secrets['vsphere']['api'], user=secrets['vsphere']['user'], pwd=secrets['vsphere']['password'], sslContext=context)
+		atexit.register(Disconnect, service_instance)
 
-	search_index = service_instance.content.searchIndex
+		search_index = service_instance.content.searchIndex
 
-	vm = search_index.FindByUuid(None, uuid, True, False)
+		vm = search_index.FindByUuid(None, uuid, True, False)
 
-	if vm == None:	
+		if vm == None:	
+			exit(1)
+		else:
+			print "Successfully autosigned certificate for " + sys.argv[1]
+			exit(0)
+
+	elif cloud_platform == "aws":
+		## to do when we get up and running in aws
 		exit(1)
 	else:
-		exit(0)
+		exit(1)
 
-elif cloud_platform == "aws":
-	## to do when we get up and running in aws
-	exit(1)
-
-else:
-	exit(1)
+if __name__ == "__main__":
+    main()
