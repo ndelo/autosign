@@ -12,7 +12,7 @@ import atexit
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1) 
 context.verify_mode = ssl.CERT_NONE 
 
-# load crs from stdin
+# load csr from stdin
 csr_from_stdin = sys.stdin.read()
 csr = load_certificate_request(FILETYPE_PEM, csr_from_stdin)
 
@@ -20,7 +20,7 @@ extentions = csr.get_extensions()
 uuid = extentions[0].get_data()[2:].lower().strip()
 cloud_platform = extentions[1].get_data()[2:].lower().strip()
 
-f = open('secrets.yml')
+f = open('config.yml')
 secrets = yaml.safe_load(f)
 f.close()
 
