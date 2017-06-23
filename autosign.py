@@ -12,6 +12,7 @@ import atexit
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1) 
 context.verify_mode = ssl.CERT_NONE 
 
+# load crs from stdin
 csr_from_stdin = sys.stdin.read()
 csr = load_certificate_request(FILETYPE_PEM, csr_from_stdin)
 
@@ -35,7 +36,6 @@ if cloud_platform == "vmware":
 	if vm == None:	
 		exit(1)
 	else:
-		print uuid
 		exit(0)
 
 elif cloud_platform == "aws":
