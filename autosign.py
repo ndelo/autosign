@@ -13,14 +13,14 @@ def main():
 	context = ssl.SSLContext(ssl.PROTOCOL_TLSv1) 
 	context.verify_mode = ssl.CERT_NONE 
 
-	# load csr from stdin
+	# load CSR from stdin
 	csr_from_stdin = sys.stdin.read()
 	csr = load_certificate_request(FILETYPE_PEM, csr_from_stdin)
 
-	# get extension requests
 	# NOTE: Ideally we could filter by OID number, but OpenSSL.crypto.X509Extension 
 	# doesn't give us the extension's raw OID, and the shortname field returns "UNDEF", 
-	# so we access the extensions by their index
+	# so we access the CSR extension requests by their index
+	
 	extensions = csr.get_extensions()
 	uuid = extensions[0].get_data()[2:].lower().strip()
 	cloud_platform = extensions[1].get_data()[2:].lower().strip()
