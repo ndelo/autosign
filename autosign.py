@@ -41,7 +41,11 @@ def main():
 		if vm == None:	
 			exit(1)
 		else:
-			exit(0)
+			# check that the incoming hostname on the cert matches the hostname in vshpere 
+			if vm.guest.hostName.lower() == sys.argv[1]:
+				exit(0)
+			else:
+				exit(1)
 
 	elif cloud_platform == "aws":
 		## to do when we get up and running in aws
