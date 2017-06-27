@@ -22,34 +22,36 @@ def main():
 	# so we access the CSR extension requests by their index
 	
 	extensions = csr.get_extensions()
-	uuid = extensions[0].get_data()[2:].lower().strip()
-	cloud_platform = extensions[1].get_data()[2:].lower().strip()
-
-	f = open('config.yml')
+	pp_uuid = extensions[0].get_data()[2:].lower().strip()
+	pp_cloudplatform = extensions[1].get_data()[2:].lower().strip()
+	
+	# read in secrets file
+	config_file = '/opt/puppetlabs/autosign/config.yml'
+	
+	f = open(config_file)
 	secrets = yaml.safe_load(f)
 	f.close()
 
-	if cloud_platform == "vmware":
-
+	# check vsphere for a host mathing pp_uuid extension request
+	if pp_cloudplatform == "vmware":
+		
 		service_instance = SmartConnect(host=secrets['vsphere']['api'], user=secrets['vsphere']['user'], pwd=secrets['vsphere']['password'], sslContext=context)
 		atexit.register(Disconnect, service_instance)
 
 		search_index = service_instance.content.searchIndex
-
-		vm = search_index.FindByUuid(None, uuid, True, False)
+		vm = search_index.FindByUuid(None, pp_uuid, True, False)
 
 		if vm == None:	
 			exit(1)
 		else:
-			# check that the incoming hostname on the cert matches the hostname in vshpere 
+			# check that the hostname on the cert matches the hostname in vshpere 
 			if vm.guest.hostName.lower() == sys.argv[1]:
 				exit(0)
 			else:
 				exit(1)
-
+	# check aws for same
 	elif cloud_platform == "aws":
-		## to do when we get up and running in aws
-		exit(1)
+		## nothing here yet
 	else:
 		exit(1)
 
