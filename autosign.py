@@ -9,6 +9,12 @@ import ssl
 import atexit
 
 def main():
+
+	puppet_node = sys.argv[1].lower()[:sys.argv[1].lower().index('.')]
+	
+	if puppet_node.endswith('princeton.edu'):
+		puppet_node = puppet_node[:puppet_node.index('.')]
+	
 	# disable SSL certificate verification for self-signed certificates on VSphere server
 	context = ssl.SSLContext(ssl.PROTOCOL_TLSv1) 
 	context.verify_mode = ssl.CERT_NONE 
@@ -22,36 +28,39 @@ def main():
 	# so we access the CSR extension requests by their index
 	
 	extensions = csr.get_extensions()
-	pp_uuid = extensions[0].get_data()[2:].lower().strip()
-	pp_cloudplatform = extensions[1].get_data()[2:].lower().strip()
-	
-	# read in secrets file
-	config_file = '/opt/puppetlabs/autosign/config.yml'
-	
-	f = open(config_file)
+	uuid = extensions[0].get_data()[2:].lower().strip()
+	cloud_platform = extensions[1].get_data()[2:].lower().strip()
+
+	f = open('config.yml')
 	secrets = yaml.safe_load(f)
 	f.close()
 
-	# check vsphere for a host mathing pp_uuid extension request
-	if pp_cloudplatform == "vmware":
-		
+	if cloud_platform == "vmware":
+
 		service_instance = SmartConnect(host=secrets['vsphere']['api'], user=secrets['vsphere']['user'], pwd=secrets['vsphere']['password'], sslContext=context)
 		atexit.register(Disconnect, service_instance)
 
 		search_index = service_instance.content.searchIndex
-		vm = search_index.FindByUuid(None, pp_uuid, True, False)
 
-		if vm == None:	
-			exit(1)
+		vm = search_index.FindByUuid(None, uuid, True, False)			
+		
+		if vm == None:
+        	exit(1)
 		else:
-			# check that the hostname on the cert matches the hostname in vshpere 
-			if vm.guest.hostName.lower() == sys.argv[1]:
+			# check that the incoming hostname on the cert matches the hostname in vshpere 
+			vm_name = vm.guest.hostName.lower()
+
+			if vm_name.endswith('.princeton.edu'):
+				vm_name = vm_name[:vm_name.index('.')]
+
+			if vm_name == puppet_node:
 				exit(0)
 			else:
 				exit(1)
-	# check aws for same
+
 	elif cloud_platform == "aws":
-		## nothing here yet
+		## to do when we get up and running in aws
+		exit(1)
 	else:
 		exit(1)
 
