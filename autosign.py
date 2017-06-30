@@ -45,7 +45,7 @@ def main():
 		vm = search_index.FindByUuid(None, uuid, True, False)			
 		
 		if vm == None:
-        	exit(1)
+        		exit(1)
 		else:
 			# check that the incoming hostname on the cert matches the hostname in vshpere 
 			vm_name = vm.guest.hostName.lower()
