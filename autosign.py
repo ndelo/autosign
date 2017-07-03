@@ -31,7 +31,7 @@ def main():
 	uuid = extensions[0].get_data()[2:].lower().strip()
 	cloud_platform = extensions[1].get_data()[2:].lower().strip()
 
-	f = open('config.yml')
+	f = open('/opt/puppetlabs/autosign/config.yml')
 	secrets = yaml.safe_load(f)
 	f.close()
 
