@@ -11,12 +11,7 @@ import yaml
 def main():
 
 	puppet_node = sys.argv[1].lower()[:sys.argv[1].lower().index('.')]
-	domain = "princeton.edu"
 	config_file = '/opt/puppetlabs/autosign/config.yml'
-
-	# we want just the host name, not the fqdn
-	if puppet_node.endswith(domain):
-		puppet_node = puppet_node[:puppet_node.index('.')]
 
 	# load CSR from stdin
 	csr_from_stdin = sys.stdin.read()
@@ -68,20 +63,16 @@ def main():
 		session = boto3.Session(aws_access_key_id=secrets['aws']['access_key_id'],aws_secret_access_key=secrets['aws']['secret_access_key'],region_name=secrets['aws']['region'])
 		ec2 = session.resource('ec2')
 		instance = ec2.Instance(node_id)
-
-		# check that we get a response
-		if len(response['Reservations']) != 1:
+		
+		for tag in instance.tags:
+			if tag["Key"] == 'Name':
+				instance_name = tag["Value"].lower()
+	
+		if instance_name == puppet_node:
+			exit(0)
+		else:
 			exit(1)
-		else:	
-			for tag in instance.tags:
-    			if tag["Key"] == 'Name':
-        		instance_name = tag["Value"].lower()
-
-			if instance_name == puppet_node:
-				exit(0)
-			else:
-				exit(1)
-
+	
 	else:
 		exit(1)
 
