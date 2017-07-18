@@ -35,6 +35,7 @@ def main():
 	f.close()
 	
 	if cloud_platform == "vmware":	
+
 		# disable SSL certificate verification for self-signed certificates on VSphere server
 		context = ssl.SSLContext(ssl.PROTOCOL_TLSv1) 
 		context.verify_mode = ssl.CERT_NONE 
@@ -61,6 +62,7 @@ def main():
 				exit(1)
 
 	elif cloud_platform == "aws":
+		
 		# check that the incoming name on the cert matches the 'Name' tag value on the ec2 instance
 		session = boto3.Session(aws_access_key_id=secrets['aws']['access_key_id'],aws_secret_access_key=secrets['aws']['secret_access_key'],region_name=secrets['aws']['region'])
 		ec2 = session.resource('ec2')
