@@ -12,6 +12,7 @@ def main():
 
 	puppet_node = sys.argv[1].lower()[:sys.argv[1].lower().index('.')]
 	domain = "princeton.edu"
+	config_file = '/opt/puppetlabs/autosign/config.yml'
 
 	# we want just the host name, not the fqdn
 	if puppet_node.endswith(domain):
@@ -30,7 +31,7 @@ def main():
 	cloud_platform = extensions[1].get_data()[2:].lower().strip()
 
 	# read in config file for api calls
-	f = open('/opt/puppetlabs/config.yml')
+	f = open(config_file)
 	secrets = yaml.safe_load(f)
 	f.close()
 	
