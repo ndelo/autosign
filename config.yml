@@ -2,8 +2,8 @@
 vsphere:
     user:
     password:
-    api:
+    vsphere_server:
 aws:
-    user:
-    password:
-    api:
+    access_key_id:
+    secret_access_key:
+    region:
