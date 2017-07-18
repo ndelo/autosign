@@ -24,12 +24,13 @@ def main():
 	# NOTE: Ideally we could filter by OID number, but OpenSSL.crypto.X509Extension 
 	# doesn't give us the extension's raw OID, and the shortname field returns "UNDEF", 
 	# so we access the CSR extension requests by their index
+	
 	extensions = csr.get_extensions()
 	node_id = extensions[0].get_data()[2:].lower().strip()
 	cloud_platform = extensions[1].get_data()[2:].lower().strip()
 
 	# read in config file for api calls
-	f = open('config.yml')
+	f = open('/opt/puppetlabs/config.yml')
 	secrets = yaml.safe_load(f)
 	f.close()
 	
