@@ -1,5 +1,5 @@
 # autosign
-Python script for certificate policy-based autosigning in Puppet
+Python script for policy-based certificate autosigning in Puppet
 
 For more information about policy-based autosigning, see--
 https://docs.puppet.com/puppet/5.0/ssl_autosign.html#policy-based-autosigning
